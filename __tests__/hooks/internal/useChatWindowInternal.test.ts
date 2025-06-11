@@ -8,6 +8,18 @@ import { RcbEvent } from "../../../src/constants/RcbEvent";
 import { TestChatBotProvider } from "../../__mocks__/TestChatBotContext";
 import { MockDefaultSettings } from "../../__mocks__/constants";
 
+// shared ref for mocking useBotRefsContext
+let mockChatBodyRef: { current: HTMLDivElement | null } = { current: null };
+
+// mock BotRefsContext but keep other exports
+jest.mock("../../../src/context/BotRefsContext", () => {
+	const actual = jest.requireActual("../../../src/context/BotRefsContext");
+	return {
+		...actual,
+		useBotRefsContext: () => ({ chatBodyRef: mockChatBodyRef }),
+	};
+});
+
 // mocks internal hooks and services
 jest.mock("../../../src/hooks/internal/useDispatchRcbEventInternal");
 const mockUseRcbEventInternal = useDispatchRcbEventInternal as jest.MockedFunction<typeof useDispatchRcbEventInternal>;
@@ -18,6 +30,7 @@ const mockUseRcbEventInternal = useDispatchRcbEventInternal as jest.MockedFuncti
 describe("useChatWindowInternal Hook", () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		mockChatBodyRef = { current: null };
 	});
 
 	// initial values
@@ -144,7 +157,6 @@ describe("useChatWindowInternal Hook", () => {
 
 // Added tests for getIsChatBotVisible
 describe("useChatWindowInternal Hook - getIsChatBotVisible", () => {
-	let mockChatBodyRef: { current: HTMLDivElement | null };
 
 	beforeAll(() => {
 		// Set the viewport size for testing
@@ -153,17 +165,8 @@ describe("useChatWindowInternal Hook - getIsChatBotVisible", () => {
 	});
 
 	beforeEach(() => {
-		// Reset all mocks before each test
 		jest.clearAllMocks();
-		// Initialize mockChatBodyRef with a default div element
-		mockChatBodyRef = {
-			current: document.createElement('div')
-		};
-
-		// Mock useBotRefsContext to return our mockChatBodyRef
-		jest.mock("../../../src/context/BotRefsContext", () => ({
-			useBotRefsContext: () => ({ chatBodyRef: mockChatBodyRef })
-		}));
+		mockChatBodyRef = { current: document.createElement('div') };
 	});
 
 	it("should return false when chatBodyRef.current is null", () => {
