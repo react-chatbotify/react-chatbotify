@@ -42,7 +42,7 @@ export const DefaultSettings: Settings = {
 	header: {
 		title: (
 			<div style={{cursor: "pointer", margin: 0, fontSize: 20, fontWeight: "bold"}} onClick={
-				() => window.open("https://github.com/tjtanjin/")
+				() => window.open("https://github.com/tjtanjin/", "_blank", "noopener,noreferrer")
 			}>
 				Tan Jin
 			</div>
@@ -137,7 +137,7 @@ export const DefaultSettings: Settings = {
 	footer: {
 		text: (
 			<div style={{cursor: "pointer", display: "flex", flexDirection: "row", alignItems: "center", columnGap: 3}} 
-				onClick={() => window.open("https://react-chatbotify.com")}
+				onClick={() => window.open("https://react-chatbotify.com", "_blank", "noopener,noreferrer")}
 			>
 				<span key={0}>Powered By </span>
 				<div
