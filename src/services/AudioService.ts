@@ -23,15 +23,11 @@ export const speak = (message: string, language: string, voiceNames: string[], r
 
 	let voiceIdentified = false;
 	for (const voiceName of voiceNames) {
-		window.speechSynthesis.getVoices().find((voice) => {
-			if (voice.name === voiceName) {
-				utterance.voice = voice;
-				window.speechSynthesis.speak(utterance);
-				voiceIdentified = true;
-				return;
-			}
-		});
-		if (voiceIdentified) {
+		const matchedVoice = window.speechSynthesis.getVoices().find((voice) => voice.name === voiceName);
+		if(matchedVoice){
+			utterance.voice = matchedVoice;
+			window.speechSynthesis.speak(utterance);
+			voiceIdentified = true;
 			break;
 		}
 	}
