@@ -17,6 +17,7 @@
 .env.test.local
 .env.production.local
 .eslintcache
+.idea
 
 # logs
 npm-debug.log*
