@@ -1,4 +1,3 @@
-import {startVoiceRecording, stopVoiceRecording, syncVoiceWithChatInput} from "../../src/services/VoiceService";
 import {Settings} from "../../src/types/Settings";
 import {RefObject} from "react";
 
@@ -28,9 +27,12 @@ class MockMediaRecorder {
 }
 
 // Helper functions
-const createMockStream = () => ({
-	getTracks: () => [{ stop: jest.fn() }]
-});
+const createMockStream = () => {
+	const mockTrackStop = jest.fn();
+	return {
+		getTracks: () => [{ stop: mockTrackStop }]
+	};
+};
 
 const createMockInput = (value = "") => ({
 	value,
@@ -108,26 +110,64 @@ describe("VoiceService", () => {
 	let audioChunksRef: { current: any[] };
 	let inputRef: RefObject<HTMLInputElement>;
 
+	// Store original global objects for restoration
+	let originalWindow: any;
+	let originalNavigator: any;
+
+	// Voice service functions - will be loaded dynamically
+	let startVoiceRecording: any;
+	let stopVoiceRecording: any;
+	let syncVoiceWithChatInput: any;
+
 	beforeAll(() => {
+		// Snapshot original globals
+		originalWindow = (global as any).window ? { ...(global as any).window } : undefined;
+		originalNavigator = (global as any).navigator ? { ...(global as any).navigator } : undefined;
+
+		// Initialize clean global environment
 		if (!(global as any).window) {
 			(global as any).window = {};
 		}
-		(global as any).window.MediaRecorder = MockMediaRecorder;
 		if (!(global as any).navigator) {
 			(global as any).navigator = {};
 		}
+
+		// Set up base mocks that should persist across tests
 		(global as any).navigator.mediaDevices = {
 			getUserMedia: mockGetUserMedia
 		};
 	});
 
-	beforeEach(() => {
+	afterAll(() => {
+		// Restore original globals
+		if (originalWindow) {
+			(global as any).window = originalWindow;
+		} else {
+			delete (global as any).window;
+		}
+
+		if (originalNavigator) {
+			(global as any).navigator = originalNavigator;
+		} else {
+			delete (global as any).navigator;
+		}
+	});
+
+	beforeEach(async () => {
 		jest.useFakeTimers();
 		jest.clearAllMocks();
 		jest.resetModules();
 
+		// Dynamically import VoiceService functions after module reset
+		const voiceService = await import("../../src/services/VoiceService");
+		startVoiceRecording = voiceService.startVoiceRecording;
+		stopVoiceRecording = voiceService.stopVoiceRecording;
+		syncVoiceWithChatInput = voiceService.syncVoiceWithChatInput;
+
+		// Set up clean mocks for each test
 		(global as any).window.SpeechRecognition = MockSpeechRecognition;
 		(global as any).window.webkitSpeechRecognition = MockSpeechRecognition;
+		(global as any).window.MediaRecorder = MockMediaRecorder;
 
 		settings = createDefaultSettings();
 		toggleVoice = jest.fn().mockResolvedValue(undefined);
@@ -140,6 +180,11 @@ describe("VoiceService", () => {
 
 	afterEach(() => {
 		jest.useRealTimers();
+
+		// Clean up any test-specific modifications to globals
+		(global as any).window.SpeechRecognition = MockSpeechRecognition;
+		(global as any).window.webkitSpeechRecognition = MockSpeechRecognition;
+		(global as any).window.MediaRecorder = MockMediaRecorder;
 	});
 
 	describe("startVoiceRecording", () => {
@@ -247,12 +292,23 @@ describe("VoiceService", () => {
 
 		it("should stop media recorder if active", async () => {
 			settings = createDefaultSettings({ voice: { sendAsAudio: true } });
-			mockGetUserMedia.mockResolvedValue(createMockStream());
+			const mockStream = createMockStream();
+			mockGetUserMedia.mockResolvedValue(mockStream);
 
 			class RecordingMediaRecorder extends MockMediaRecorder {
+				onstop: any = null;
+
 				constructor() {
 					super();
 					this.state = "recording";
+					// Override the stop mock to include our custom behavior
+					this.stop = jest.fn().mockImplementation(() => {
+						mockMediaRecorderStop();
+						// Simulate the onstop event which is where tracks are actually stopped
+						if (this.onstop) {
+							this.onstop();
+						}
+					});
 				}
 			}
 			(global as any).window.MediaRecorder = RecordingMediaRecorder;
@@ -269,6 +325,7 @@ describe("VoiceService", () => {
 
 			stopVoiceRecording();
 			expect(mockMediaRecorderStop).toHaveBeenCalled();
+			expect(mockStream.getTracks()[0].stop).toHaveBeenCalled();
 
 			(global as any).window.MediaRecorder = MockMediaRecorder;
 		});
