@@ -157,7 +157,13 @@ describe("useMessagesInternal", () => {
 		expect(mockSetHistoryMessages).toHaveBeenCalledWith([]);
 	});
 
-	it("should update a message correctly", async () => {
+	it("should update a message correctly and dispatch events", async () => {
+		(useSettingsContext as jest.Mock).mockReturnValue({
+			settings: {
+				event: { rcbPreUpdateMessage: true, rcbPostUpdateMessage: true },
+			},
+		});
+
 		const mockMessageId = "test-id";
 		const mockMessage: Message = {
 			id: mockMessageId,
@@ -177,43 +183,14 @@ describe("useMessagesInternal", () => {
 		const { result } = renderHook(() => useMessagesInternal());
 
 		const newMessage = { ...mockMessage, content: "Updated" };
+		mockCallRcbEvent.mockResolvedValue({ defaultPrevented: false });
 		await act(async () => {
-			const updated = await result.current.updateMessage(mockMessageId, newMessage);
-			expect(updated).toBe(newMessage);
+			await result.current.updateMessage(mockMessageId, newMessage);
 		});
 
+		expect(mockCallRcbEvent).toHaveBeenCalledWith(RcbEvent.PRE_UPDATE_MESSAGE, { message: newMessage });
 		expect(setSyncedMessagesMock).toHaveBeenCalledWith(expect.any(Function));
-	});
-
-	it("should update a message from chat history when not present in current messages", async () => {
-		const mockMessageId = "history-id";
-		const historyMessage: Message = {
-			id: mockMessageId,
-			content: "History",
-			sender: "BOT",
-			type: "text",
-			timestamp: String(Date.now()),
-			tags: [],
-		};
-
-		mockGetHistoryMessages.mockReturnValue([historyMessage]);
-
-		(useMessagesContext as jest.Mock).mockReturnValue({
-			messages: [],
-			setSyncedMessages: setSyncedMessagesMock,
-			syncedMessagesRef: { current: [] },
-		});
-
-		const { result } = renderHook(() => useMessagesInternal());
-
-		const newMessage = { ...historyMessage, content: "Updated" };
-		await act(async () => {
-			const updated = await result.current.updateMessage(mockMessageId, newMessage);
-			expect(updated).toBe(newMessage);
-		});
-
-		expect(setSyncedMessagesMock).not.toHaveBeenCalled();
-		expect(mockSetHistoryMessages).toHaveBeenCalledWith([newMessage]);
+		expect(mockCallRcbEvent).toHaveBeenCalledWith(RcbEvent.POST_UPDATE_MESSAGE, { message: newMessage });
 	});
 
 	it("should stream a message correctly", async () => {

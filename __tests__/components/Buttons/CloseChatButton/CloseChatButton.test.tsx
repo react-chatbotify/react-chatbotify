@@ -10,7 +10,7 @@ import { useSettingsContext } from "../../../../src/context/SettingsContext";
 import { useStylesContext } from "../../../../src/context/StylesContext";
 import { DefaultSettings } from "../../../../src/constants/internal/DefaultSettings";
 
-import closeChatIcon from "../../../__mocks__/fileMock";
+import { closeChatIcon } from "../../../__mocks__/fileMock";
 
 // Mock the hooks used in the component
 jest.mock("../../../../src/hooks/internal/useChatWindowInternal");

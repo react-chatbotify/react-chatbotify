@@ -356,9 +356,8 @@ export const useMessagesInternal = () => {
 			return null;
 		}
 
-		// handles update message event
-		if (settings.event?.rcbUpdateMessage) {
-			const event = await dispatchRcbEvent(RcbEvent.UPDATE_MESSAGE, { message: newMessage });
+		if (settings.event?.rcbPreUpdateMessage) {
+			const event = await dispatchRcbEvent(RcbEvent.PRE_UPDATE_MESSAGE, { message: newMessage });
 			if (event.defaultPrevented) {
 				return null;
 			}
@@ -376,8 +375,13 @@ export const useMessagesInternal = () => {
 			prev.map(m => m.id === messageId ? newMessage : m)
 		);
 		handlePostMessagesUpdate(syncedMessagesRef.current);
+
+		if (settings.event?.rcbPostUpdateMessage) {
+			await dispatchRcbEvent(RcbEvent.POST_UPDATE_MESSAGE, { message: newMessage });
+		}
+
 		return newMessage;
-	}, [dispatchRcbEvent, settings.event?.rcbUpdateMessage, handlePostMessagesUpdate,
+	}, [dispatchRcbEvent, settings.event, handlePostMessagesUpdate,
 		syncedMessagesRef, getHistoryMessages, setHistoryMessages
 	]);
 

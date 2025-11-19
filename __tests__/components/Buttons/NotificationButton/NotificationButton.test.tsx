@@ -8,8 +8,7 @@ import NotificationButton from "../../../../src/components/Buttons/NotificationB
 import { DefaultSettings } from "../../../../src/constants/internal/DefaultSettings";
 
 import { TestChatBotProvider } from "../../../__mocks__/TestChatBotContext"
-import notificationIcon from "../../../__mocks__/fileMock";
-import notificationIconDisabled from "../../../__mocks__/fileMock";
+import { notificationIcon, notificationIconDisabled } from "../../../__mocks__/fileMock";
 
 /**
  * Helper function to render NotificationButton with different settings.
