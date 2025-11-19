@@ -12,7 +12,7 @@ import { useSubmitInputInternal } from "../../../../src/hooks/internal/useSubmit
 import { useStylesContext } from "../../../../src/context/StylesContext";
 import { DefaultStyles } from "../../../../src/constants/internal/DefaultStyles";
 
-import { sendIcon } from "../../../__mocks__/fileMock";
+import sendIcon from "../../../__mocks__/fileMock";
 
 jest.mock("../../../../src/context/SettingsContext");
 jest.mock("../../../../src/context/BotStatesContext");

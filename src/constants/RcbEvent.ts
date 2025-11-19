@@ -22,6 +22,7 @@ enum RcbEvent {
 	CHUNK_STREAM_MESSAGE = "rcb-chunk-stream-message",
 	STOP_STREAM_MESSAGE = "rcb-stop-stream-message",
 	REMOVE_MESSAGE = "rcb-remove-message",
+	UPDATE_MESSAGE = "rcb-update-message",
 
 	// chat history
 	SAVE_CHAT_HISTORY = "rcb-save-chat-history",

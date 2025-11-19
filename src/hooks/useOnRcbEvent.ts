@@ -21,9 +21,9 @@ export const useOnRcbEvent = (eventName: RcbEvent, handler: (event: RcbBaseEvent
 			handler(event);
 		};
 
-		window.addEventListener(eventName, listener);
+		window.addEventListener(eventName, listener as EventListener);
 		return () => {
-			window.removeEventListener(eventName, listener);
+			window.removeEventListener(eventName, listener as EventListener);
 		};
 	}, [getBotId, eventName, handler]);
 }

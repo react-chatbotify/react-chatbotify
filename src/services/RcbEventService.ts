@@ -19,6 +19,7 @@ const cancellableMap: Record<RcbEvent, boolean> = {
 	[RcbEvent.CHUNK_STREAM_MESSAGE]: true,
 	[RcbEvent.STOP_STREAM_MESSAGE]: true,
 	[RcbEvent.REMOVE_MESSAGE]: true,
+	[RcbEvent.UPDATE_MESSAGE]: true,
 	[RcbEvent.SAVE_CHAT_HISTORY]: true,
 	[RcbEvent.LOAD_CHAT_HISTORY]: true,
 	[RcbEvent.CHANGE_PATH]: true,

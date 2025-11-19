@@ -81,6 +81,7 @@ describe("useMessagesInternal", () => {
 		expect(result.current).toHaveProperty("endStreamMessage");
 		expect(result.current).toHaveProperty("injectMessage");
 		expect(result.current).toHaveProperty("removeMessage");
+		expect(result.current).toHaveProperty("updateMessage");
 		expect(result.current).toHaveProperty("streamMessage");
 		expect(result.current).toHaveProperty("messages");
 		expect(result.current).toHaveProperty("replaceMessages");
@@ -154,6 +155,65 @@ describe("useMessagesInternal", () => {
 
 		expect(setSyncedMessagesMock).not.toHaveBeenCalled();
 		expect(mockSetHistoryMessages).toHaveBeenCalledWith([]);
+	});
+
+	it("should update a message correctly", async () => {
+		const mockMessageId = "test-id";
+		const mockMessage: Message = {
+			id: mockMessageId,
+			content: "Test",
+			sender: "BOT",
+			type: "text",
+			timestamp: String(Date.now()),
+			tags: [],
+		};
+
+		(useMessagesContext as jest.Mock).mockReturnValue({
+			messages: [mockMessage],
+			setSyncedMessages: setSyncedMessagesMock,
+			syncedMessagesRef: { current: [mockMessage] },
+		});
+
+		const { result } = renderHook(() => useMessagesInternal());
+
+		const newMessage = { ...mockMessage, content: "Updated" };
+		await act(async () => {
+			const updated = await result.current.updateMessage(mockMessageId, newMessage);
+			expect(updated).toBe(newMessage);
+		});
+
+		expect(setSyncedMessagesMock).toHaveBeenCalledWith(expect.any(Function));
+	});
+
+	it("should update a message from chat history when not present in current messages", async () => {
+		const mockMessageId = "history-id";
+		const historyMessage: Message = {
+			id: mockMessageId,
+			content: "History",
+			sender: "BOT",
+			type: "text",
+			timestamp: String(Date.now()),
+			tags: [],
+		};
+
+		mockGetHistoryMessages.mockReturnValue([historyMessage]);
+
+		(useMessagesContext as jest.Mock).mockReturnValue({
+			messages: [],
+			setSyncedMessages: setSyncedMessagesMock,
+			syncedMessagesRef: { current: [] },
+		});
+
+		const { result } = renderHook(() => useMessagesInternal());
+
+		const newMessage = { ...historyMessage, content: "Updated" };
+		await act(async () => {
+			const updated = await result.current.updateMessage(mockMessageId, newMessage);
+			expect(updated).toBe(newMessage);
+		});
+
+		expect(setSyncedMessagesMock).not.toHaveBeenCalled();
+		expect(mockSetHistoryMessages).toHaveBeenCalledWith([newMessage]);
 	});
 
 	it("should stream a message correctly", async () => {

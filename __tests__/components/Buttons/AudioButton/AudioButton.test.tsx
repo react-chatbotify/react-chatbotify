@@ -8,7 +8,8 @@ import AudioButton from "../../../../src/components/Buttons/AudioButton/AudioBut
 import { DefaultSettings } from "../../../../src/constants/internal/DefaultSettings";
 
 import { TestChatBotProvider } from "../../../__mocks__/TestChatBotContext";
-import { audioIcon, audioIconDisabled } from "../../../__mocks__/fileMock";
+import audioIcon from "../../../__mocks__/fileMock";
+import audioIconDisabled from "../../../__mocks__/fileMock";
 
 /**
  * Helper function to render AudioButton with different settings.

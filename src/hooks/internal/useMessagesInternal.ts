@@ -332,6 +332,56 @@ export const useMessagesInternal = () => {
 	]);
 
 	/**
+	 * Updates a message with the given id.
+	 *
+	 * @param messageId id of message to update
+	 * @param newMessage new message to update to
+	 */
+	const updateMessage = useCallback(async (messageId: string, newMessage: Message): Promise<Message | null> => {
+		let message = syncedMessagesRef.current.find((m) => m.id === messageId);
+		let historyMessages: Message[] | null = null;
+		let isHistoryMessage = false;
+
+		// if not found in current messages, check in history messages
+		if (!message) {
+			historyMessages = getHistoryMessages();
+			message = historyMessages.find((m) => m.id === messageId);
+			if (message) {
+				isHistoryMessage = true;
+			}
+		}
+
+		// nothing to update if no such message at all
+		if (!message) {
+			return null;
+		}
+
+		// handles update message event
+		if (settings.event?.rcbUpdateMessage) {
+			const event = await dispatchRcbEvent(RcbEvent.UPDATE_MESSAGE, { message: newMessage });
+			if (event.defaultPrevented) {
+				return null;
+			}
+		}
+
+		// if message updated is from history, update history messages
+		if (isHistoryMessage) {
+			if (historyMessages) {
+				setHistoryMessages(historyMessages.map((m) => m.id === messageId ? newMessage : m));
+			}
+			return newMessage;
+		}
+
+		setSyncedMessages(prev =>
+			prev.map(m => m.id === messageId ? newMessage : m)
+		);
+		handlePostMessagesUpdate(syncedMessagesRef.current);
+		return newMessage;
+	}, [dispatchRcbEvent, settings.event?.rcbUpdateMessage, handlePostMessagesUpdate,
+		syncedMessagesRef, getHistoryMessages, setHistoryMessages
+	]);
+
+	/**
 	 * Streams data into the last message at the end of the messages array with given type.
 	 * 
 	 * @param content message content to inject
@@ -492,6 +542,7 @@ export const useMessagesInternal = () => {
 		simulateStreamMessage,
 		injectMessage,
 		removeMessage,
+		updateMessage,
 		streamMessage,
 		endStreamMessage,
 		replaceMessages,

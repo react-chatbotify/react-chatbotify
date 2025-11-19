@@ -8,7 +8,8 @@ import VoiceButton from "../../../../src/components/Buttons/VoiceButton/VoiceBut
 import { DefaultSettings } from "../../../../src/constants/internal/DefaultSettings";
 import { useTextAreaInternal } from "../../../../src/hooks/internal/useTextAreaInternal";
 import { TestChatBotProvider } from "../../../__mocks__/TestChatBotContext";
-import { voiceIcon, voiceIconDisabled } from "../../../__mocks__/fileMock";
+import voiceIcon from "../../../__mocks__/fileMock";
+import voiceIconDisabled from "../../../__mocks__/fileMock";
 
 jest.mock("../../../../src/hooks/internal/useTextAreaInternal");
 

@@ -9,7 +9,7 @@ import ChatBotHeader  from "../../../src/components/ChatBotHeader/ChatBotHeader"
 import { useSettingsContext } from "../../../src/context/SettingsContext";
 import { useStylesContext } from "../../../src/context/StylesContext";
 import { useButtonInternal } from "../../../src/hooks/internal/useButtonsInternal";
-import { botAvatar } from "../../__mocks__/fileMock";
+import botAvatar from "../../__mocks__/fileMock";
 
 jest.mock("../../../src/context/SettingsContext");
 jest.mock("../../../src/context/StylesContext");
