@@ -81,6 +81,7 @@ describe("useMessagesInternal", () => {
 		expect(result.current).toHaveProperty("endStreamMessage");
 		expect(result.current).toHaveProperty("injectMessage");
 		expect(result.current).toHaveProperty("removeMessage");
+		expect(result.current).toHaveProperty("updateMessage");
 		expect(result.current).toHaveProperty("streamMessage");
 		expect(result.current).toHaveProperty("messages");
 		expect(result.current).toHaveProperty("replaceMessages");
@@ -154,6 +155,42 @@ describe("useMessagesInternal", () => {
 
 		expect(setSyncedMessagesMock).not.toHaveBeenCalled();
 		expect(mockSetHistoryMessages).toHaveBeenCalledWith([]);
+	});
+
+	it("should update a message correctly and dispatch events", async () => {
+		(useSettingsContext as jest.Mock).mockReturnValue({
+			settings: {
+				event: { rcbPreUpdateMessage: true, rcbPostUpdateMessage: true },
+			},
+		});
+
+		const mockMessageId = "test-id";
+		const mockMessage: Message = {
+			id: mockMessageId,
+			content: "Test",
+			sender: "BOT",
+			type: "text",
+			timestamp: String(Date.now()),
+			tags: [],
+		};
+
+		(useMessagesContext as jest.Mock).mockReturnValue({
+			messages: [mockMessage],
+			setSyncedMessages: setSyncedMessagesMock,
+			syncedMessagesRef: { current: [mockMessage] },
+		});
+
+		const { result } = renderHook(() => useMessagesInternal());
+
+		const newMessage = { ...mockMessage, content: "Updated" };
+		mockCallRcbEvent.mockResolvedValue({ defaultPrevented: false });
+		await act(async () => {
+			await result.current.updateMessage(mockMessageId, newMessage);
+		});
+
+		expect(mockCallRcbEvent).toHaveBeenCalledWith(RcbEvent.PRE_UPDATE_MESSAGE, { message: newMessage });
+		expect(setSyncedMessagesMock).toHaveBeenCalledWith(expect.any(Function));
+		expect(mockCallRcbEvent).toHaveBeenCalledWith(RcbEvent.POST_UPDATE_MESSAGE, { message: newMessage });
 	});
 
 	it("should stream a message correctly", async () => {

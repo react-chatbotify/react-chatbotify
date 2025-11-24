@@ -143,6 +143,8 @@ export type Settings = {
 		rcbChunkStreamMessage?: boolean;
 		rcbStopStreamMessage?: boolean;
 		rcbRemoveMessage?: boolean;
+		rcbPreUpdateMessage?: boolean;
+		rcbPostUpdateMessage?: boolean;
 		rcbSaveChatHistory?: boolean;
 		rcbLoadChatHistory?: boolean;
 		rcbToggleChatWindow?: boolean;
