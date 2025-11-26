@@ -33,8 +33,8 @@ const ChatBotProvider = ({
 	// handles bot id ref
 	const botIdRef = useRef<string>("");
 
-	// handles bot flow ref
-	const botFlowRef = useRef<Flow>({});
+	// handles bot flow
+	const [botFlow, setSyncedBotFlow, syncedBotFlowRef] = useSyncedRefState<Flow>({});
 
 	// handles bot settings
 	const [botSettings, setSyncedBotSettings, syncedBotSettingsRef] = useSyncedRefState<Settings>({});
@@ -70,7 +70,7 @@ const ChatBotProvider = ({
 		styleRootRef: MutableRefObject<HTMLStyleElement | null>,
 	) => {
 		botIdRef.current = botId;
-		botFlowRef.current = flow;
+		setSyncedBotFlow(flow);
 		userProvidedSettingsRef.current = deepClone(settings ?? {});
 		userProvidedStylesRef.current = deepClone(styles ?? {});
 		const combinedConfig = await parseConfig(botId, settings, styles, themes);
@@ -104,7 +104,12 @@ const ChatBotProvider = ({
 						userProvidedStylesRef={userProvidedStylesRef}
 					>
 						<ToastsProvider>
-							<BotRefsProvider botIdRef={botIdRef} flowRef={botFlowRef}>
+							<BotRefsProvider
+								botIdRef={botIdRef}
+								flow={botFlow}
+								flowRef={syncedBotFlowRef}
+								setSyncedFlow={setSyncedBotFlow}
+							>
 								<PathsProvider>
 									<BotStatesProvider settings={botSettings}>
 										<MessagesProvider>{children}</MessagesProvider>

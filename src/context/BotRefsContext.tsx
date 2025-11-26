@@ -7,7 +7,9 @@ import { Flow } from "../types/Flow";
  */
 type BotRefsContextType = {
 	botIdRef: React.RefObject<string>;
+	flow: Flow;
 	flowRef: React.MutableRefObject<Flow>;
+	setSyncedFlow: (value: React.SetStateAction<Flow>) => void;
 	inputRef: React.RefObject<HTMLTextAreaElement | HTMLInputElement | null>;
 	prevInputRef: React.MutableRefObject<string>;
 	timeoutIdRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>;
@@ -28,11 +30,15 @@ const useBotRefsContext = () => useContext(BotRefsContext);
 const BotRefsProvider = ({
 	children,
 	botIdRef,
+	flow,
 	flowRef,
+	setSyncedFlow,
 }: {
 	children: React.ReactNode;
 	botIdRef: RefObject<string>;
+	flow: Flow;
 	flowRef: MutableRefObject<Flow>;
+	setSyncedFlow: (value: React.SetStateAction<Flow>) => void;
 }) => {
 	const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
 	const prevInputRef = useRef<string>("");
@@ -48,7 +54,9 @@ const BotRefsProvider = ({
 	return (
 		<BotRefsContext.Provider value={{
 			botIdRef,
+			flow,
 			flowRef,
+			setSyncedFlow,
 			inputRef,
 			timeoutIdRef,
 			streamMessageMap,
