@@ -8,6 +8,7 @@ import { parseConfig } from "../../src/utils/configParser";
 import { Flow } from "../../src/types/Flow";
 import { Settings } from "../../src/types/Settings";
 import { Styles } from "../../src/types/Styles";
+import { useFlow } from "../../src/hooks/useFlow";
 
 // Define a type for the mock return value
 type ParseConfig = {
@@ -87,16 +88,14 @@ describe("ChatBotContext", () => {
 
 			React.useEffect(() => {
 				if (loadConfig) {
-					act(() => {
-						loadConfig(
-							"test-bot-id",
-                            { flowName: "testFlow" } as Flow,
-                            { general: { fontFamily: "Arial" } } as Settings,
-                            { backgroundColor: "#000" } as Styles,
-                            undefined,
-                            styleRootRef as MutableRefObject<HTMLStyleElement | null>
-						);
-					});
+					loadConfig(
+						"test-bot-id",
+						{ start: { content: "Hello" } },
+						{ general: { fontFamily: "Arial" } } as Settings,
+						{ backgroundColor: "#000" } as Styles,
+						undefined,
+						styleRootRef as MutableRefObject<HTMLStyleElement | null>
+					);
 				}
 			}, [loadConfig]);
 
@@ -143,5 +142,57 @@ describe("ChatBotContext", () => {
 
 		// Expect that the loadConfig function is defined
 		expect(contextValue?.loadConfig).toBeInstanceOf(Function);
+	});
+
+	it("re-renders components when flow is updated", async () => {
+		const FlowDisplay = () => {
+			const { getFlow } = useFlow();
+			const flow = getFlow();
+			// @ts-ignore
+			return <div data-testid="flow-display">{flow.start.content}</div>;
+		};
+
+		const TestComponent = () => {
+			const contextValue = useChatBotContext();
+			const { loadConfig } = contextValue ?? {};
+			const styleRootRef = useRef<HTMLStyleElement | null>(null);
+
+			React.useEffect(() => {
+				if (loadConfig) {
+					loadConfig(
+						"test-bot-id",
+						{ start: { content: "Initial" } },
+						{},
+						{},
+						undefined,
+						styleRootRef as MutableRefObject<HTMLStyleElement | null>
+					);
+
+					setTimeout(() => {
+						loadConfig(
+							"test-bot-id",
+							{ start: { content: "Updated" } },
+							{},
+							{},
+							undefined,
+							styleRootRef as MutableRefObject<HTMLStyleElement | null>
+						);
+					}, 100);
+				}
+			}, [loadConfig]);
+
+			return <FlowDisplay />;
+		};
+
+		render(
+			<ChatBotProvider>
+				<TestComponent />
+			</ChatBotProvider>
+		);
+
+		expect(screen.getByTestId("flow-display")).toHaveTextContent("Initial");
+		await waitFor(() => {
+			expect(screen.getByTestId("flow-display")).toHaveTextContent("Updated");
+		});
 	});
 });
