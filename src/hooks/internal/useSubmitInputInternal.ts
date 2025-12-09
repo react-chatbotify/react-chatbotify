@@ -203,7 +203,7 @@ export const useSubmitInputInternal = () => {
 	 */
 	const handleSubmitText = useCallback(async (inputText?: string, sendInChat = true) => {
 		// if no user input provided, grab from text area
-		inputText = inputText ?? inputRef.current?.value as string;
+		inputText = inputText ?? inputRef.current?.value ?? "";
 
 		// handles user send text event
 		if (settings.event?.rcbUserSubmitText) {
