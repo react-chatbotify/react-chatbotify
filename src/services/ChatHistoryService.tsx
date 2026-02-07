@@ -118,6 +118,77 @@ const sanitizeStyleText = (styleText: string): CSSProperties => {
 	return styleObject as CSSProperties;
 };
 
+
+/**
+ * Default sanitizer used when re-hydrating chat history content from web storage.
+ *
+ * Note: chat history content is treated as untrusted input on load. This sanitizer aims to
+ * prevent DOM XSS by stripping scriptable tags/attributes and unsafe URL schemes.
+ */
+const defaultChatHistorySanitizer = (html: string): string => {
+	const parser = new DOMParser();
+	const parsedHtml = parser.parseFromString(html, "text/html");
+
+	const sanitizeNode = (node: Node) => {
+		if (node.nodeType !== Node.ELEMENT_NODE) {
+			return;
+		}
+
+		const element = node as Element;
+		const tagName = element.tagName.toLowerCase();
+		if (DISALLOWED_HTML_TAGS.has(tagName)) {
+			element.remove();
+			return;
+		}
+
+		// Sanitize attributes.
+		for (const attr of Array.from(element.attributes)) {
+			const attributeName = attr.name.toLowerCase();
+
+			// Strip inline event handlers (e.g. onerror, onclick).
+			if (attributeName.startsWith("on")) {
+				element.removeAttribute(attr.name);
+				continue;
+			}
+
+			// Drop srcset entirely to avoid parsing multiple URLs and to keep sanitization simple.
+			if (attributeName === "srcset") {
+				element.removeAttribute(attr.name);
+				continue;
+			}
+
+			if (URL_ATTRIBUTES.has(attributeName)) {
+				const sanitized = sanitizeUrl(attr.value);
+				if (sanitized === null) {
+					element.removeAttribute(attr.name);
+				} else {
+					element.setAttribute(attr.name, sanitized);
+				}
+			}
+		}
+
+		// Prevent reverse-tabnabbing if a malicious link is present in stored content.
+		if (tagName === "a" && element.getAttribute("target") === "_blank") {
+			const existingRel = element.getAttribute("rel") ?? "";
+			const relTokens = new Set(existingRel.split(/\s+/).filter(Boolean));
+			relTokens.add("noopener");
+			relTokens.add("noreferrer");
+			element.setAttribute("rel", Array.from(relTokens).join(" "));
+		}
+
+		// Sanitize children after current node is cleaned up.
+		for (const child of Array.from(element.childNodes)) {
+			sanitizeNode(child);
+		}
+	};
+
+	for (const node of Array.from(parsedHtml.body.childNodes)) {
+		sanitizeNode(node);
+	}
+
+	return parsedHtml.body.innerHTML;
+};
+
 // variables used to track history, updated when settings.chatHistory value changes
 let storage: Storage;
 let historyLoaded = false;
@@ -291,7 +362,19 @@ const loadChatHistory = (
 
 			const parsedMessages = chatHistory.map((message) => {
 				if (message.type === "object") {
-					const element = renderHTML(message.content as string, settings, styles);
+					const html = typeof message.content === "string" ? message.content : "";
+					const sanitizer = settings.chatHistorySanitizer ?? defaultChatHistorySanitizer;
+					let sanitizedHtml = html;
+					try {
+						sanitizedHtml = sanitizer(html);
+						if (typeof sanitizedHtml !== "string") {
+							sanitizedHtml = "";
+						}
+					} catch {
+						sanitizedHtml = defaultChatHistorySanitizer(html);
+					}
+
+					const element = renderHTML(sanitizedHtml, settings, styles);
 					return { ...message, content: element };
 				}
 				return message;
@@ -361,23 +444,12 @@ const renderHTML = (html: string, settings: Settings, styles: Styles): ReactNode
 					return acc;
 				}
 
-				// Drop srcset entirely to avoid parsing multiple URLs and to keep sanitization simple.
-				if (attributeName === "srcset") {
-					return acc;
-				}
 
 				if (attributeName === "style") {
 					acc[attributeName] = sanitizeStyleText(attr.value);
 					return acc;
 				}
 
-				if (URL_ATTRIBUTES.has(attributeName)) {
-					const sanitized = sanitizeUrl(attr.value);
-					if (sanitized != null) {
-						acc[attributeName] = sanitized;
-					}
-					return acc;
-				}
 
 				if ((tagName === "audio" || tagName === "video") && attributeName === "controls" && attr.value === "") {
 					acc[attributeName] = true;

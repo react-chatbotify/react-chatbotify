@@ -56,6 +56,15 @@ export type Settings = {
 		chatHistoryLineBreakText?: string;
 		autoLoad?: boolean;
 	},
+	/**
+	 * Optional sanitizer to run on persisted chat history HTML before it is re-rendered.
+	 *
+	 * Defaults to a safe built-in sanitizer. Override this only if you need to loosen/adjust
+	 * allowlists for backward compatibility (e.g. allow `srcset` or custom URL schemes).
+	 *
+	 * Warning: returning unsanitized HTML can reintroduce DOM XSS.
+	 */
+	chatHistorySanitizer?: (html: string) => string;
 	chatInput?: {
 		disabled?: boolean;
 		allowNewline?: boolean;
