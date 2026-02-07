@@ -201,6 +201,58 @@ describe("ChatHistoryService", () => {
 
 			expect(storage.removeItem).toHaveBeenCalledWith(mockSettings(storageType).chatHistory?.storageKey);
 		});
+
+		it("sanitizes stored html to prevent DOM XSS (drops inline handlers and unsafe URLs)", () => {
+			const dispatch = jest.fn();
+			const syncedMessagesRef = { current: [mockMessage] };
+			const setIsLoadingChatHistory = jest.fn();
+			const setHasChatHistoryLoaded = jest.fn();
+			const chatBodyRef = { current: document.createElement("div") };
+
+			const maliciousHtml = [
+				`<img src="x" onerror="alert(1)" />`,
+				`<a href="javascript:alert(1)" target="_blank">click</a>`,
+				`<script>alert(1)</script>`,
+			].join("");
+
+			const maliciousMessage: Message = {
+				...mockMessage,
+				type: "object",
+				content: maliciousHtml,
+			};
+
+			loadChatHistory(
+				mockSettings(storageType),
+				{},
+				[maliciousMessage],
+				dispatch,
+				syncedMessagesRef,
+				chatBodyRef,
+				1000,
+				setIsLoadingChatHistory,
+				setHasChatHistoryLoaded,
+			);
+
+			jest.runAllTimers();
+
+			const lastCall = (dispatch as jest.Mock).mock.calls[(dispatch as jest.Mock).mock.calls.length - 1];
+			const messages = lastCall[0] as Message[];
+			const parsed = messages[0] as unknown as { content: any[] };
+			const nodes = parsed.content;
+
+			const imgNode = nodes.find((n) => n?.type === "img");
+			expect(imgNode).toBeTruthy();
+			expect(imgNode.props?.onerror).toBeUndefined();
+
+			const aNode = nodes.find((n) => n?.type === "a");
+			expect(aNode).toBeTruthy();
+			expect(aNode.props?.href).toBeUndefined();
+			expect(aNode.props?.rel).toContain("noopener");
+			expect(aNode.props?.rel).toContain("noreferrer");
+
+			const scriptNode = nodes.find((n) => n?.type === "script");
+			expect(scriptNode).toBeUndefined();
+		});
 	});
 
 	describe("clearHistoryMessages", () => {
