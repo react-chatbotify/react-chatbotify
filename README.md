@@ -18,6 +18,7 @@
 * [Technologies](#technologies)
 * [Quickstart](#quickstart)
 * [Documentation](#documentation)
+* [AI Dev Playground](#ai-dev-playground)
 * [Team](#team)
 * [Contributing](#contributing)
 * [Support](#support)
@@ -124,3 +125,87 @@ Credits are to be given for the notification sound:
 As I have used similar alternatives at some point in my developer journey, some inspirations have been taken from them and they ought to be credited here:
 - [Tidio](https://www.tidio.com/)
 - [React Simple Chatbot](https://github.com/LucasBassetti/react-simple-chatbot)
+
+---
+
+## AI Dev Playground
+
+This local development environment has been extended beyond the original library demo into a **full-featured AI-powered chat application** for testing and showcasing all capabilities of React ChatBotify.
+
+### What's New
+
+| Feature | Description |
+|---|---|
+| 🤖 **Google Gemini AI** | Real AI responses powered by `gemini-2.0-flash` with multi-turn memory |
+| ⚡ **Streaming Responses** | Answers stream in real-time using the library's native `streamMessage` API |
+| 📜 **Chat History Sidebar** | Sessions are saved to `localStorage` and listed in a searchable sidebar |
+| 🧹 **New Chat / Clear History** | Start fresh or wipe all saved sessions with one click |
+| 🎙️ **Improved Voice Input** | STT via Web Speech API — auto-sends after a 1.5 s pause |
+| 🔊 **Improved TTS (Audio)** | Higher-quality voices (`Google UK English Female`, `Samantha`) at a natural 0.95× rate |
+| 📎 **File Attachments** | Upload images, PDFs, and text files directly in the chat |
+| 😀 **Emoji Picker** | Full emoji support in the input area |
+| 📊 **Info Panel** | Live session stats (message count, conversation turns) and feature status chips |
+| 💡 **Quick Prompts** | One-click starter prompts shown in the right panel |
+| 🎨 **Premium Dark UI** | 3-column glassmorphism dashboard with gradient accents and micro-animations |
+
+### Setup — Getting Started with AI
+
+1. **Get a free Gemini API key** at [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
+
+2. **Add it to your `.env` file:**
+
+   ```env
+   # AI Provider (Google Gemini)
+   VITE_GEMINI_API_KEY=your_actual_key_here
+   VITE_AI_MODEL=gemini-2.0-flash
+   VITE_AI_SYSTEM_PROMPT=You are ChatBotify AI, a friendly, concise, and knowledgeable assistant.
+
+   # Voice / TTS Configuration
+   VITE_VOICE_NAMES=Google UK English Female,Microsoft Zira - English (United States),Samantha
+   VITE_VOICE_RATE=0.95
+   VITE_VOICE_VOLUME=1
+   VITE_VOICE_LANGUAGE=en-US
+   ```
+
+3. **Install dependencies and start the dev server:**
+
+   ```bash
+   npm install
+   npm run start
+   # App runs at http://localhost:3000
+   ```
+
+> ⚠️ If `VITE_GEMINI_API_KEY` is not set, the app runs in **static fallback mode** — the chatbot still works but returns echoed responses instead of AI-generated ones. A warning banner appears in the UI.
+
+### Voice Model Notes
+
+The TTS (text-to-speech) voice is powered by the browser's Web Speech API. Voice availability depends on your OS/browser:
+
+| Voice Priority | Name | Best On |
+|---|---|---|
+| 1st | `Google UK English Female` | Chrome |
+| 2nd | `Microsoft Zira - English (United States)` | Edge / Windows |
+| 3rd | `Samantha` | macOS / Safari |
+
+You can override these in `.env` using `VITE_VOICE_NAMES` (comma-separated list). The chatbot uses the first available match.
+
+### New Files Added
+
+```
+src/
+├── App.tsx                         ← Rebuilt: 3-panel dashboard, AI flow, ChatBotProvider
+├── App.css                         ← New: Premium dark-mode design system
+└── services/
+    └── GeminiService.ts            ← New: Gemini streaming client & conversation memory
+```
+
+### Architecture Overview
+
+```
+App (ChatBotProvider)
+ └── AppContent
+      ├── Sidebar          ← Session list, search, new chat, clear history
+      ├── Chat Panel       ← Embedded <ChatBot> component with AI flow
+      │    └── Flow: start → ai_loop (Gemini streaming) → ai_loop
+      └── Info Panel       ← Model badge, session stats, feature chips, quick prompts
+```

@@ -34,4 +34,11 @@ export default [
 			"react-hooks/rules-of-hooks": "error",
 		},
 	},
+	{
+		// Relaxed line-length for the dev playground entry (lots of JSX & string literals)
+		files: ["**/App.tsx"],
+		rules: {
+			"max-len": ["warn", { code: 200 }],
+		},
+	},
 ];

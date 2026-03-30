@@ -92,6 +92,7 @@
     ]
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@rcb-plugins/input-validator": "^0.3.1"
   }
 }
