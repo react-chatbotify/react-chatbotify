@@ -66,3 +66,5 @@ jobs:
     uses: ./.github/workflows/test.yml
     with:
       node-version: "22.9.0"
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

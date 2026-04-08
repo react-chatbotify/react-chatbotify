@@ -1,0 +1,23 @@
+coverage:
+  status:
+    project:
+      default:
+        # Require at least 75% overall coverage
+        target: 75%
+        threshold: 2%
+    patch:
+      default:
+        # Require at least 70% coverage on new code in PRs
+        target: 70%
+        threshold: 5%
+
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: false
+
+flags:
+  unit:
+    paths:
+      - src/
+    carryforward: false

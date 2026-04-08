@@ -12,6 +12,10 @@ on:
         description: "Node.js version to use"
         required: true
         type: string
+    secrets:
+      CODECOV_TOKEN:
+        description: "Codecov upload token"
+        required: false
 
 jobs:
   unit-test:
@@ -39,8 +43,16 @@ jobs:
         run: |
           npm run start &
 
-      - name: Run Unit Tests
-        run: npm run unit:test
+      - name: Run Unit Tests with Coverage
+        run: npm run unit:test:coverage
+
+      - name: Upload Unit Test Coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: unit
+          fail_ci_if_error: false
 
   integration-test:
     needs: unit-test

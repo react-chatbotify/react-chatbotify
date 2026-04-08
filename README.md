@@ -5,6 +5,7 @@
 
 <p align="center">
   <a href="https://github.com/react-chatbotify/react-chatbotify/actions/workflows/ci-cd-pipeline.yml"> <img src="https://github.com/react-chatbotify/react-chatbotify/actions/workflows/ci-cd-pipeline.yml/badge.svg" /> </a>
+  <a href="https://codecov.io/gh/react-chatbotify/react-chatbotify"> <img src="https://codecov.io/gh/react-chatbotify/react-chatbotify/graph/badge.svg" alt="codecov" /> </a>
   <a href="https://www.npmjs.com/package/react-chatbotify"> <img src="https://img.shields.io/npm/v/react-chatbotify?logo=semver&label=version&color=%2331c854" /> </a>
   <a href="https://www.npmjs.com/package/react-chatbotify"> <img src="https://img.shields.io/badge/react-16--19-orange?logo=react&label=react" /> </a>
   <a href="https://www.npmjs.com/package/react-chatbotify"> <img src="https://img.shields.io/npm/d18m/react-chatbotify?logo=npm&label=npm%20downloads&color=%232281c2" /> </a>

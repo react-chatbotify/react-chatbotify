@@ -13,4 +13,22 @@ export default {
 	testPathIgnorePatterns: [
 		"__tests__/__mocks__"
 	],
+	collectCoverageFrom: [
+		'src/**/*.{ts,tsx}',
+		'!src/**/*.d.ts',
+		'!src/index.tsx',
+		'!src/devIndex.tsx',
+		'!src/App.tsx',
+		'!src/viteconfig.ts',
+	],
+	coverageDirectory: 'coverage',
+	coverageReporters: ['text', 'lcov', 'json-summary'],
+	coverageThreshold: {
+		global: {
+			statements: 75,
+			branches: 55,
+			functions: 65,
+			lines: 75,
+		},
+	},
 };
