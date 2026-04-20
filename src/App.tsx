@@ -152,6 +152,9 @@ function App() {
 							voice: {disabled: false},
 							sensitiveInput: {asterisksCount: 6},
 						}}
+						styles={{
+							chatButtonStyle: {width: "100px", height: "100px" }
+						}}
 					></ChatBot>
 				</div>
 			</header>
