@@ -27,9 +27,16 @@ const ChatBotButton = () => {
 	const [isHovered, setIsHovered] = useState<boolean>(false);
 
 	// styles for chat button
+	// const chatButtonStyle: React.CSSProperties = {
+	// 	backgroundImage: `linear-gradient(to right, ${settings.general?.secondaryColor},
+	// 		${settings.general?.primaryColor})`,
+	// 	...styles.chatButtonStyle
+	// };
 	const chatButtonStyle: React.CSSProperties = {
 		backgroundImage: `linear-gradient(to right, ${settings.general?.secondaryColor},
 			${settings.general?.primaryColor})`,
+		width: 75,
+		height: 75,
 		...styles.chatButtonStyle
 	};
 

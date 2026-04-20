@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"name": "lightbox2-dev",
+			"path": "../../../../../../../Downloads/lightbox2-dev"
+		},
+		{
+			"name": "si338",
+			"path": "../../../../../si338"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "si338"
+	}
+}

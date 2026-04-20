@@ -1,6 +1,6 @@
 /* ChatBot Toggle Button */
 
-.rcb-toggle-button {
+/* .rcb-toggle-button {
 	display: flex;
 	flex-direction: row;
 	position: fixed;
@@ -9,6 +9,19 @@
 	z-index: 9999;
 	width: 75px;
 	height: 75px;
+	border-radius: 50%;
+	border: none;
+	cursor: pointer;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+} */
+
+.rcb-toggle-button {
+	display: flex;
+	flex-direction: row;
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	z-index: 9999;
 	border-radius: 50%;
 	border: none;
 	cursor: pointer;

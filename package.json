@@ -92,6 +92,7 @@
     ]
   },
   "dependencies": {
+    "22": "^0.0.0",
     "@rcb-plugins/input-validator": "^0.3.1"
   }
 }
