@@ -5,6 +5,7 @@ import { useBotStatesContext } from "../../context/BotStatesContext";
 import { useBotRefsContext } from "../../context/BotRefsContext";
 import { useSettingsContext } from "../../context/SettingsContext";
 import { RcbEvent } from "../../constants/RcbEvent";
+import { stopVoiceRecording } from "../../services/VoiceService";
 
 /**
  * Internal custom hook for managing chat window logic.
@@ -25,6 +26,7 @@ export const useChatWindowInternal = () => {
 		setSyncedIsBotTyping,
 		setSyncedIsScrolling,
 		syncedIsBotTypingRef,
+		setSyncedVoiceToggledOn,
 		syncedIsChatWindowOpenRef,
 	} = useBotStatesContext();
 
@@ -77,6 +79,12 @@ export const useChatWindowInternal = () => {
 				return;
 			}
 		}
+		// stop voice recording when closing the chat window
+		if (syncedIsChatWindowOpenRef.current) {
+			stopVoiceRecording();
+			setSyncedVoiceToggledOn(false);
+		}
+
 		setSyncedIsChatWindowOpen(prev => {
 			// if currently false means opening so set unread count to 0
 			if (!prev) {
