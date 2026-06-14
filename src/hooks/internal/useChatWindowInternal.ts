@@ -5,7 +5,7 @@ import { useBotStatesContext } from "../../context/BotStatesContext";
 import { useBotRefsContext } from "../../context/BotRefsContext";
 import { useSettingsContext } from "../../context/SettingsContext";
 import { RcbEvent } from "../../constants/RcbEvent";
-
+import { stopVoiceRecording } from "../../services/VoiceService";
 /**
  * Internal custom hook for managing chat window logic.
  */
@@ -77,14 +77,23 @@ export const useChatWindowInternal = () => {
 				return;
 			}
 		}
-		setSyncedIsChatWindowOpen(prev => {
-			// if currently false means opening so set unread count to 0
-			if (!prev) {
-				setUnreadCount(0);
-			}
-			return !prev;
-		});
-	}, [syncedIsChatWindowOpenRef]);
+		// changes for the issue
+	setSyncedIsChatWindowOpen(prev => {
+
+	// Stop active voice recording when closing the chat window.
+	if (prev) {
+		stopVoiceRecording();
+	}
+
+	// if currently false means opening so set unread count to 0
+	if (!prev) {
+		setUnreadCount(0);
+	}
+
+	return !prev;
+});
+
+}, [syncedIsChatWindowOpenRef]);
 
 	/**
 	 * Forces state for showing typing indicator.
