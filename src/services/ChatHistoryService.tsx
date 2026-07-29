@@ -232,8 +232,8 @@ const renderHTML = (html: string, settings: Settings, styles: Styles): ReactNode
 		} else {
 			const tagName = (node as Element).tagName.toLowerCase();
 			let attributes = Array.from((node as Element).attributes).reduce((acc, attr) => {
-				const attributeName = attr.name.toLowerCase();
-				if (attributeName === "style") {
+				const attributeNameLower = attr.name.toLowerCase();
+				if (attributeNameLower === "style") {
 					const styleProperties = attr.value.split(";").filter(property => property.trim() !== "");
 					const styleObject: { [key: string]: string } = {};
 					styleProperties.forEach(property => {
@@ -241,12 +241,12 @@ const renderHTML = (html: string, settings: Settings, styles: Styles): ReactNode
 						const reactCompliantKey = key.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
 						styleObject[reactCompliantKey] = value;
 					});
-					acc[attributeName] = styleObject;
+					acc[attributeNameLower] = styleObject;
 				} else if ((tagName === "audio" || tagName === "video")
-					&& attributeName === "controls" && attr.value === "") {
-					acc[attributeName] = "true";
+					&& attributeNameLower === "controls" && attr.value === "") {
+					acc[attributeNameLower] = "true";
 				} else {
-					acc[attributeName] = attr.value;
+					acc[attr.name] = attr.value;
 				}
 				return acc;
 			}, {} as { [key: string]: string | CSSProperties });
