@@ -222,11 +222,9 @@ const loadChatHistory = (
  * @param settings options provided to the bot
  */
 const renderHTML = (html: string, settings: Settings, styles: Styles): ReactNode[] => {
-	const parser = new DOMParser();
-	const parsedHtml = parser.parseFromString(html, "text/html");
-	const nodes = Array.from(parsedHtml.body.childNodes);
-  
-	const renderNodes: ReactNode[] = nodes.map((node, index) => {
+	const parsedHtml = new DOMParser().parseFromString(html, "text/html");
+
+	const renderNode = (node: ChildNode, index: number): ReactNode => {
 		if (node.nodeType === Node.TEXT_NODE) {
 			return node.textContent;
 		} else {
@@ -271,13 +269,13 @@ const renderHTML = (html: string, settings: Settings, styles: Styles): ReactNode
 				// void elements must not have children
 				return createElement(tagName, { key: index, ...attributes });
 			} else {
-				const children = renderHTML((node as Element).innerHTML, settings, styles);
+				const children = Array.from(node.childNodes).map(renderNode);
 				return createElement(tagName, { key: index, ...attributes }, ...children);
 			}
 		}
-	});
-  
-	return renderNodes;
+	};
+
+	return Array.from(parsedHtml.body.childNodes).map(renderNode);
 };
 
 
