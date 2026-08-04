@@ -75,7 +75,6 @@ const ChatBotTooltip = () => {
 	}, [
 		isChatWindowOpen,
 		isDesktop,
-		shownTooltipOnStart,
 		styles.chatButtonStyle?.width,
 		settings.tooltip?.mode,
 	]);
