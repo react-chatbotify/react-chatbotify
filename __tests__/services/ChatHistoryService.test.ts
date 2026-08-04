@@ -8,7 +8,7 @@ import {
 } from "../../src/services/ChatHistoryService";
 import { Message } from "../../src/types/Message";
 import { Settings } from "../../src/types/Settings";
-import { Dispatch } from "react";
+import  { Children, Dispatch, type ReactElement } from "react";
 
 jest.useFakeTimers();
 
