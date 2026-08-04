@@ -76,16 +76,34 @@ describe("ChatBotTooltip Component", () => {
 	// Test: Show the tooltip when mode is "START" (when component is rendered for the first time)
 	it('shows tooltip when mode is "START" and shownTooltipOnStart is false', () => {
 		// Mock the context to return settings with mode "START"
-		(useSettingsContext as jest.Mock).mockReturnValueOnce({
+		(useSettingsContext as jest.Mock).mockReturnValue({
 			settings: {
 				tooltip: { mode: "START", text: "Chatbot Tooltip" },
 			},
 		});
 
 		// Render the component and ensure the tooltip is shown
-		render(<ChatBotTooltip />);
-		const tooltip = screen.getByText("Chatbot Tooltip");
-		expect(tooltip).toBeInTheDocument(); 
+		const { rerender } = render(<ChatBotTooltip />);
+		const tooltip = screen.getByTestId("chat-tooltip");
+		expect(tooltip).toBeInTheDocument();
+		expect(tooltip).toHaveClass("rcb-tooltip-show");
+
+		// Simulate the user opening the chat window, which should hide the tooltip
+		(useChatWindowInternal as jest.Mock).mockReturnValue({
+			isChatWindowOpen: true,
+			toggleChatWindow: jest.fn(),
+		});
+		rerender(<ChatBotTooltip />);
+		expect(tooltip).toBeInTheDocument();
+		expect(tooltip).toHaveClass("rcb-tooltip-hide");
+
+		// Simulate the user closing the chat window, the tooltip should remain hidden.
+		(useChatWindowInternal as jest.Mock).mockReturnValue({
+			isChatWindowOpen: false,
+			toggleChatWindow: jest.fn(),
+		});
+		rerender(<ChatBotTooltip />);
+		expect(tooltip).toHaveClass("rcb-tooltip-hide");
 	});
 
 	// Test: Ensure the tooltip shows when mode is "CLOSE"
