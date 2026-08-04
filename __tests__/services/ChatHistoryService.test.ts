@@ -8,7 +8,7 @@ import {
 } from "../../src/services/ChatHistoryService";
 import { Message } from "../../src/types/Message";
 import { Settings } from "../../src/types/Settings";
-import { Dispatch } from "react";
+import  { Children, Dispatch, type ReactElement } from "react";
 
 jest.useFakeTimers();
 
@@ -132,6 +132,42 @@ describe("ChatHistoryService", () => {
 			expect(dispatch).toHaveBeenCalled();
 			expect(setIsLoadingChatHistory).toHaveBeenCalledWith(false);
 			expect(setHasChatHistoryLoaded).toHaveBeenCalledWith(true);
+		});
+
+		it("should preserve nested elements when restoring history", () => {
+			const dispatch = jest.fn();
+			const syncedMessagesRef = { current: [] };
+			const setIsLoadingChatHistory = jest.fn();
+			const setHasChatHistoryLoaded = jest.fn();
+			const chatBodyRef = { current: document.createElement("div") };
+			const tableMessage: Message = {
+				...mockMessage,
+				content: "<table><thead><tr><th>Feature</th></tr></thead><tbody><tr><td>Data</td></tr></tbody></table>",
+				type: "object",
+			};
+
+			loadChatHistory(
+				mockSettings(storageType),
+				{},
+				[tableMessage],
+				dispatch,
+				syncedMessagesRef,
+				chatBodyRef,
+				0,
+				setIsLoadingChatHistory,
+				setHasChatHistoryLoaded
+			);
+
+			jest.runAllTimers();
+
+			const restoredMessages = dispatch.mock.calls.at(-1)[0] as Message[];
+			const restoredTable = (restoredMessages[0].content as ReactElement[])[0];
+			const [restoredHead, restoredBody] = Children.toArray(restoredTable.props.children) as ReactElement[];
+
+			expect(restoredTable.type).toBe("table");
+			expect(restoredHead.type).toBe("thead");
+			expect(restoredBody.type).toBe("tbody");
+			expect((Children.toArray(restoredBody.props.children)[0] as ReactElement).type).toBe("tr");
 		});
 
 		it("should handle corrupted data by clearing it from storage", () => {
